@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Exploration & NASA Hub</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(circle at 20% 20%, #0b0b22, #000);
+            color: #fff;
+        }
+        header {
+            background: url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1400&q=80') no-repeat center/cover;
+            height: 300px;
+            text-align: center;
+            padding-top: 100px;
+        }
+        header h1 {
+            font-size: 3em;
+            text-shadow: 2px 2px 6px #000;
+        }
+        nav {
+            background: #222;
+            text-align: center;
+            padding: 10px;
+        }
+        nav a {
+            color: #fff;
+            margin: 0 15px;
+            text-decoration: none;
+        }
+        nav a:hover {
+            color: #00aaff;
+        }
+        section {
+            padding: 20px;
+            max-width: 800px;
+            margin: auto;
+        }
+        #chatbot {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            height: 450px;
+            background: #111;
+            border: 1px solid #444;
+            border-radius: 10px;
+            display: none;
+            flex-direction: column;
+            padding: 10px;
+            z-index: 100;
+        }
+        #chatbot.show {
+            display: flex;
+        }
+        #messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+        #userInput {
+            width: 75%;
+            padding: 5px;
+        }
+        #chatToggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            font-size: 20px;
+            z-index: 200;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+        button:hover {
+            background: #005fcc;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Space Exploration & NASA Hub</h1>
+        <p>Discover the wonders of the universe with NASA's missions and facts.</p>
+    </header>
+
+    <nav>
+        <a href="#about">About NASA</a>
+        <a href="#missions">Missions</a>
+        <a href="#facts">Space Facts</a>
+    </nav>
+
+    <section id="about">
+        <h2>About NASA</h2>
+        <p>NASA, the National Aeronautics and Space Administration, was founded in 1958. It leads humanity's exploration of space — from Moon landings to Mars rovers.</p>
+    </section>
+
+    <section id="missions">
+        <h2>Key Missions</h2>
+        <ul>
+            <li><strong>Artemis Program:</strong> Returning humans to the Moon.</li>
+            <li><strong>Perseverance Rover:</strong> Exploring Mars for signs of life.</li>
+            <li><strong>James Webb Telescope:</strong> Studying galaxies and the origins of the universe.</li>
+        </ul>
+    </section>
+
+    <section id="facts">
+        <h2>Space Facts</h2>
+        <ul>
+            <li>The Sun is about 93 million miles from Earth.</li>
+            <li>Mars has the largest volcano in the solar system — Olympus Mons.</li>
+            <li>Space is a vacuum — no sound travels through it.</li>
+        </ul>
+    </section>
+
+    <!-- Chatbot -->
+    <button id="chatToggle">💬</button>
+    <div id="chatbot">
+        <h3>Space Chatbot</h3>
+        <div id="messages"><p>Bot: Hi! Ask me anything about NASA or space!</p></div>
+        <input id="userInput" placeholder="Type your question...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        // Toggle chatbot visibility
+        document.getElementById("chatToggle").addEventListener("click", () => {
+            document.getElementById("chatbot").classList.toggle("show");
+        });
+
+        // Send message to backend
+        async function sendMessage() {
+            const inputField = document.getElementById("userInput");
+            const input = inputField.value.trim();
+            if (!input) return;
+
+            const messages = document.getElementById("messages");
+            messages.innerHTML += `<p>You: ${input}</p>`;
+            inputField.value = "";
+            messages.scrollTop = messages.scrollHeight;
+
+            try {
+                const res = await fetch("/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: input })
+                });
+                const data = await res.json();
+                messages.innerHTML += `<p>Bot: ${data.reply}</p>`;
+                messages.scrollTop = messages.scrollHeight;
+            } catch (err) {
+                messages.innerHTML += `<p>Bot: Sorry, there was an error contacting the AI.</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
