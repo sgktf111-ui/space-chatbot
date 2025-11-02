@@ -64,23 +64,6 @@
             overflow-y: auto;
             margin-bottom: 10px;
         }
-        #suggestions {
-            margin-bottom: 10px;
-        }
-        .suggestion-btn {
-            display: block;
-            width: 100%;
-            margin: 5px 0;
-            padding: 5px;
-            background: #444;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            text-align: left;
-        }
-        .suggestion-btn:hover {
-            background: #555;
-        }
         #userInput {
             width: 80%;
             padding: 5px;
@@ -156,7 +139,6 @@
     <div id="chatbot">
         <h3>Space Bot</h3>
         <div id="messages"><p>Bot: Hi! Ask me about NASA or space exploration.</p></div>
-        <div id="suggestions"></div>
         <input id="userInput" placeholder="Type your question...">
         <button onclick="sendMessage()">Send</button>
         <button onclick="clearChat()">Clear Chat</button>
@@ -167,83 +149,38 @@
             document.getElementById('chatbot').classList.toggle('show');
         });
 
-        const responses = {
-            "what is nasa": "NASA is the National Aeronautics and Space Administration, exploring space for humanity.",
-            "next mission": "NASA's Artemis program aims to return humans to the Moon by 2025.",
-            "tell me about mars": "Mars is the fourth planet from the Sun, with rovers like Perseverance exploring its surface.",
-            "how does space travel work": "Space travel uses rockets to escape Earth's gravity, then orbits or trajectories to reach destinations.",
-            "what is the moon": "The Moon is Earth's natural satellite, first visited by humans in 1969 during Apollo 11.",
-            "who was the first person in space": "Yuri Gagarin was the first human in space in 1961.",
-            "what is a black hole": "A black hole is a region in space where gravity is so strong that nothing can escape, not even light.",
-            "how far is the moon": "The Moon is about 238,855 miles (384,400 km) from Earth on average.",
-            "what is the international space station": "The ISS is a habitable artificial satellite orbiting Earth, used for research and international collaboration.",
-            "why explore space": "To expand knowledge, find resources, and ensure humanity's future beyond Earth.",
-            "what is nasa's budget": "NASA's budget is around $25 billion annually, focusing on exploration and science.",
-            "tell me about the apollo missions": "Apollo missions landed humans on the Moon from 1969-1972, with Apollo 11 being the first.",
-            "what is a rocket": "A rocket is a vehicle propelled by expelling exhaust gases from burning fuel.",
-            "how long does it take to get to mars": "It takes about 6-9 months to travel to Mars, depending on the trajectory.",
-            "what is nasa's james webb telescope": "The James Webb Space Telescope observes distant galaxies and stars, launched in 2021."
-        };
-
-        const questionPool = Object.keys(responses);
-        let askedQuestions = new Set();
-
-        function getNewSuggestions() {
-            const available = questionPool.filter(q => !askedQuestions.has(q));
-            if (available.length === 0) return [];
-            const shuffled = available.sort(() => 0.5 - Math.random());
-            return shuffled.slice(0, 3);
-        }
-
-        function updateSuggestions() {
-            const suggestionsDiv = document.getElementById('suggestions');
-            suggestionsDiv.innerHTML = '';
-            const currentSuggestions = getNewSuggestions();
-            if (currentSuggestions.length === 0) {
-                suggestionsDiv.innerHTML = '<p>No more questions available!</p>';
-                return;
-            }
-            currentSuggestions.forEach(question => {
-                const btn = document.createElement('button');
-                btn.className = 'suggestion-btn';
-                btn.textContent = question;
-                btn.onclick = () => {
-                    document.getElementById('userInput').value = question;
-                    sendMessage();
-                };
-                suggestionsDiv.appendChild(btn);
-            });
-        }
-
-        updateSuggestions();
-
         async function sendMessage() {
             const inputField = document.getElementById('userInput');
-            const input = inputField.value.toLowerCase().trim();
-            if (!input) return;
+            const userMessage = inputField.value.trim();
+            if (!userMessage) return;
 
-            askedQuestions.add(input);
             const messages = document.getElementById('messages');
-            messages.innerHTML += `<p>You: ${input}</p>`;
-
-            let response = responses[input] || "Sorry, I don't know that. Try asking about NASA or space exploration!";
+            messages.innerHTML += `<p>You: ${userMessage}</p>`;
             messages.innerHTML += `<p>Bot is typing...</p>`;
             messages.scrollTop = messages.scrollHeight;
 
-            setTimeout(() => {
+            try {
+                const res = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: userMessage })
+                });
+
+                const data = await res.json();
                 messages.lastChild.remove();
-                messages.innerHTML += `<p>Bot: ${response}</p>`;
-                inputField.value = '';
-                messages.scrollTop = messages.scrollHeight;
-                updateSuggestions();
-            }, 800);
+                messages.innerHTML += `<p>Bot: ${data.reply}</p>`;
+            } catch (error) {
+                messages.lastChild.remove();
+                messages.innerHTML += `<p>Bot: Sorry, I had trouble connecting to the server.</p>`;
+            }
+
+            inputField.value = '';
+            messages.scrollTop = messages.scrollHeight;
         }
 
         function clearChat() {
             const messages = document.getElementById('messages');
             messages.innerHTML = '<p>Bot: Hi! Ask me about NASA or space exploration.</p>';
-            askedQuestions.clear();
-            updateSuggestions();
         }
     </script>
 </body>
