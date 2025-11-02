@@ -6,8 +6,9 @@ dotenv.config();
 const app = express();
 
 app.use(express.json());
-app.use(express.static("public")); // 👈 this line serves your HTML files
+app.use(express.static("public"));
 
+// Chat endpoint that connects to OpenAI
 app.post("/chat", async (req, res) => {
   const userMessage = req.body.message;
 
@@ -21,21 +22,22 @@ app.post("/chat", async (req, res) => {
       body: JSON.stringify({
         model: "gpt-3.5-turbo",
         messages: [
-          {
-            role: "system",
-            content:
-              "You are a helpful chatbot about NASA and space exploration.",
-          },
+          { role: "system", content: "You are a helpful NASA chatbot." },
           { role: "user", content: userMessage },
         ],
       }),
     });
 
     const data = await response.json();
-    res.json({ reply: data.choices[0].message.content });
+
+    if (data.choices && data.choices[0] && data.choices[0].message) {
+      res.json({ reply: data.choices[0].message.content });
+    } else {
+      res.json({ reply: "Sorry, I couldn’t understand that." });
+    }
   } catch (error) {
-    console.error(error);
-    res.status(500).send("Error communicating with OpenAI");
+    console.error("Error:", error);
+    res.status(500).json({ reply: "Error communicating with OpenAI." });
   }
 });
 
