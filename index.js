@@ -1,12 +1,11 @@
 import express from "express";
 import fetch from "node-fetch";
 import dotenv from "dotenv";
-
 dotenv.config();
-const app = express();
 
+const app = express();
 app.use(express.json());
-app.use(express.static("public")); // Serves your HTML from the public folder
+app.use(express.static("public"));
 
 app.post("/chat", async (req, res) => {
   const userMessage = req.body.message;
@@ -17,7 +16,7 @@ app.post("/chat", async (req, res) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
         model: "gpt-3.5-turbo",
@@ -31,13 +30,18 @@ app.post("/chat", async (req, res) => {
     const data = await response.json();
     console.log("OpenAI response:", data);
 
+    if (data.error) {
+      console.error("OpenAI Error:", data.error);
+      return res.json({ reply: "Error from OpenAI: " + data.error.message });
+    }
+
     if (data.choices && data.choices.length > 0) {
       res.json({ reply: data.choices[0].message.content });
     } else {
       res.json({ reply: "Sorry, I didn’t get a response from OpenAI." });
     }
   } catch (error) {
-    console.error("Error:", error);
+    console.error("Server Error:", error);
     res.status(500).json({ reply: "Error communicating with OpenAI." });
   }
 });
