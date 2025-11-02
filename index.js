@@ -6,11 +6,11 @@ dotenv.config();
 const app = express();
 
 app.use(express.json());
-app.use(express.static("public"));
+app.use(express.static("public")); // Serves your HTML from the public folder
 
-// Chat endpoint that connects to OpenAI
 app.post("/chat", async (req, res) => {
   const userMessage = req.body.message;
+  console.log("User message:", userMessage);
 
   try {
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -29,11 +29,12 @@ app.post("/chat", async (req, res) => {
     });
 
     const data = await response.json();
+    console.log("OpenAI response:", data);
 
-    if (data.choices && data.choices[0] && data.choices[0].message) {
+    if (data.choices && data.choices.length > 0) {
       res.json({ reply: data.choices[0].message.content });
     } else {
-      res.json({ reply: "Sorry, I couldn’t understand that." });
+      res.json({ reply: "Sorry, I didn’t get a response from OpenAI." });
     }
   } catch (error) {
     console.error("Error:", error);
