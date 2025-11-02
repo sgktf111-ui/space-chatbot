@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Exploration & NASA Hub</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #000;
+            color: #fff;
+        }
+        header {
+            background: #000 url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1400&q=80') no-repeat center/cover;
+            height: 300px;
+            text-align: center;
+            padding-top: 100px;
+        }
+        header h1 {
+            font-size: 3em;
+            text-shadow: 2px 2px 4px #000;
+        }
+        nav {
+            background: #333;
+            padding: 10px;
+            text-align: center;
+        }
+        nav a {
+            color: #fff;
+            margin: 0 15px;
+            text-decoration: none;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        section {
+            padding: 20px;
+            max-width: 800px;
+            margin: auto;
+        }
+        .mission {
+            margin-bottom: 20px;
+        }
+        #chatbot {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            height: 450px;
+            background: #222;
+            border: 1px solid #444;
+            border-radius: 10px;
+            padding: 10px;
+            display: none;
+            z-index: 10;
+        }
+        #chatbot.show {
+            display: block;
+        }
+        #messages {
+            height: 250px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+        #suggestions {
+            margin-bottom: 10px;
+        }
+        .suggestion-btn {
+            display: block;
+            width: 100%;
+            margin: 5px 0;
+            padding: 5px;
+            background: #444;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            text-align: left;
+        }
+        .suggestion-btn:hover {
+            background: #555;
+        }
+        #userInput {
+            width: 80%;
+            padding: 5px;
+        }
+        button {
+            padding: 5px 10px;
+            background: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        #chatToggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            font-size: 20px;
+            z-index: 20;
+        }
+        @media (max-width: 600px) {
+            #chatbot { width: 90%; height: 400px; right: 5%; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Space Exploration & NASA Hub</h1>
+        <p>Discover the wonders of the universe with NASA's missions and facts.</p>
+    </header>
+    <nav>
+        <a href="#about">About NASA</a>
+        <a href="#missions">Missions</a>
+        <a href="#facts">Space Facts</a>
+    </nav>
+    
+    <section id="about">
+        <h2>About NASA</h2>
+        <p>NASA, the National Aeronautics and Space Administration, was founded in 1958. It leads humanity's exploration of space, from the Moon landings to Mars rovers. Learn more at <a href="https://www.nasa.gov" target="_blank">nasa.gov</a>.</p>
+    </section>
+    
+    <section id="missions">
+        <h2>Key Missions</h2>
+        <div class="mission">
+            <h3>Artemis Program</h3>
+            <p>NASA's plan to return humans to the Moon by 2025 and establish a sustainable presence.</p>
+        </div>
+        <div class="mission">
+            <h3>Perseverance Rover</h3>
+            <p>Exploring Mars since 2021, collecting samples for future return to Earth.</p>
+        </div>
+        <div class="mission">
+            <h3>Hubble Space Telescope</h3>
+            <p>Launched in 1990, it has captured stunning images of distant galaxies.</p>
+        </div>
+    </section>
+    
+    <section id="facts">
+        <h2>Space Facts</h2>
+        <ul>
+            <li>The Sun is 93 million miles from Earth.</li>
+            <li>Mars has the largest volcano in the solar system, Olympus Mons.</li>
+            <li>Space is a vacuum—no sound, but extreme cold and radiation.</li>
+        </ul>
+    </section>
+    
+    <button id="chatToggle">💬</button>
+    <div id="chatbot">
+        <h3>Space Bot</h3>
+        <div id="messages"><p>Bot: Hi! Ask me about NASA or space exploration.</p></div>
+        <div id="suggestions"></div>
+        <input id="userInput" placeholder="Type your question...">
+        <button onclick="sendMessage()">Send</button>
+        <button onclick="clearChat()">Clear Chat</button>
+    </div>
+    
+    <script>
+        document.getElementById('chatToggle').addEventListener('click', () => {
+            document.getElementById('chatbot').classList.toggle('show');
+        });
+
+        const responses = {
+            "what is nasa": "NASA is the National Aeronautics and Space Administration, exploring space for humanity.",
+            "next mission": "NASA's Artemis program aims to return humans to the Moon by 2025.",
+            "tell me about mars": "Mars is the fourth planet from the Sun, with rovers like Perseverance exploring its surface.",
+            "how does space travel work": "Space travel uses rockets to escape Earth's gravity, then orbits or trajectories to reach destinations.",
+            "what is the moon": "The Moon is Earth's natural satellite, first visited by humans in 1969 during Apollo 11.",
+            "who was the first person in space": "Yuri Gagarin was the first human in space in 1961.",
+            "what is a black hole": "A black hole is a region in space where gravity is so strong that nothing can escape, not even light.",
+            "how far is the moon": "The Moon is about 238,855 miles (384,400 km) from Earth on average.",
+            "what is the international space station": "The ISS is a habitable artificial satellite orbiting Earth, used for research and international collaboration.",
+            "why explore space": "To expand knowledge, find resources, and ensure humanity's future beyond Earth.",
+            "what is nasa's budget": "NASA's budget is around $25 billion annually, focusing on exploration and science.",
+            "tell me about the apollo missions": "Apollo missions landed humans on the Moon from 1969-1972, with Apollo 11 being the first.",
+            "what is a rocket": "A rocket is a vehicle propelled by expelling exhaust gases from burning fuel.",
+            "how long does it take to get to mars": "It takes about 6-9 months to travel to Mars, depending on the trajectory.",
+            "what is nasa's james webb telescope": "The James Webb Space Telescope observes distant galaxies and stars, launched in 2021."
+        };
+
+        const questionPool = Object.keys(responses);
+        let askedQuestions = new Set();
+
+        function getNewSuggestions() {
+            const available = questionPool.filter(q => !askedQuestions.has(q));
+            if (available.length === 0) return [];
+            const shuffled = available.sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, 3);
+        }
+
+        function updateSuggestions() {
+            const suggestionsDiv = document.getElementById('suggestions');
+            suggestionsDiv.innerHTML = '';
+            const currentSuggestions = getNewSuggestions();
+            if (currentSuggestions.length === 0) {
+                suggestionsDiv.innerHTML = '<p>No more questions available!</p>';
+                return;
+            }
+            currentSuggestions.forEach(question => {
+                const btn = document.createElement('button');
+                btn.className = 'suggestion-btn';
+                btn.textContent = question;
+                btn.onclick = () => {
+                    document.getElementById('userInput').value = question;
+                    sendMessage();
+                };
+                suggestionsDiv.appendChild(btn);
+            });
+        }
+
+        updateSuggestions();
+
+        async function sendMessage() {
+            const inputField = document.getElementById('userInput');
+            const input = inputField.value.toLowerCase().trim();
+            if (!input) return;
+
+            askedQuestions.add(input);
+            const messages = document.getElementById('messages');
+            messages.innerHTML += `<p>You: ${input}</p>`;
+
+            let response = responses[input] || "Sorry, I don't know that. Try asking about NASA or space exploration!";
+            messages.innerHTML += `<p>Bot is typing...</p>`;
+            messages.scrollTop = messages.scrollHeight;
+
+            setTimeout(() => {
+                messages.lastChild.remove();
+                messages.innerHTML += `<p>Bot: ${response}</p>`;
+                inputField.value = '';
+                messages.scrollTop = messages.scrollHeight;
+                updateSuggestions();
+            }, 800);
+        }
+
+        function clearChat() {
+            const messages = document.getElementById('messages');
+            messages.innerHTML = '<p>Bot: Hi! Ask me about NASA or space exploration.</p>';
+            askedQuestions.clear();
+            updateSuggestions();
+        }
+    </script>
+</body>
+</html>
